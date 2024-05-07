@@ -11,8 +11,6 @@ import org.springframework.web.bind.annotation.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.Date;
-
 
 @RestController
 public class AuthController {
@@ -24,7 +22,6 @@ public class AuthController {
     @Autowired
     OTPService otpService;
 
-    //Validar login con usuario y clave
     @PostMapping("/api/v1/login-clave")
     private ResponseEntity<AuthResponse> loginClave(@RequestBody RequestLoginClave requestLoginClave)
     {
@@ -32,10 +29,18 @@ public class AuthController {
         boolean loginExitoso = authService.validateClave(requestLoginClave.getUsername(), requestLoginClave.getPassword());
         AuthResponse authResponse = new AuthResponse();
         if(loginExitoso){
+            authResponse.setSuccess(true);
+            authResponse.setUsername(requestLoginClave.getUsername());
+            authResponse.setMessage("Login exitoso");
+
             authResponse.setFinishAuth(false);
             authResponse.setNextStepAuth("OTP");
+            otpService.generateOTP(requestLoginClave.getUsername());
             return new ResponseEntity<>(authResponse, HttpStatus.OK);
         }
+        authResponse.setSuccess(false);
+        authResponse.setUsername(requestLoginClave.getUsername());
+        authResponse.setMessage("Credenciales erroneas");
         return new ResponseEntity<>(authResponse, HttpStatus.UNAUTHORIZED);
     }
 
@@ -46,10 +51,16 @@ public class AuthController {
         boolean loginExitoso = otpService.validateOTP(requestAuthOTP.getUsername(), requestAuthOTP.getOtp());
         AuthResponse authResponse = new AuthResponse();
         if(loginExitoso){
+            authResponse.setSuccess(true);
+            authResponse.setUsername(requestAuthOTP.getUsername());
+            authResponse.setMessage("Validación OTP exitosa");
             authResponse.setFinishAuth(true);
             authResponse.setRedirectTo("www.google.com");
             return new ResponseEntity<>(authResponse, HttpStatus.OK);
         }
+        authResponse.setSuccess(false);
+        authResponse.setUsername(requestAuthOTP.getUsername());
+        authResponse.setMessage("OTP incorrecto");
         return new ResponseEntity<>(authResponse, HttpStatus.UNAUTHORIZED);
     }
 

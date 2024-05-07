@@ -10,7 +10,7 @@ public class AutenticacionClave extends MetodoAutenticacion{
 
     @Override
     public boolean validacion_input(String user, String password) {
-//       
+//
         return true;
     }
 }
