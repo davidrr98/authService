@@ -2,7 +2,8 @@ package com.davivienda.AuthService.Services;
 
 import com.davivienda.AuthService.Model.OTP;
 import com.davivienda.AuthService.Repository.OTPRepository;
-import com.davivienda.AuthService.Repository.UserRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -12,6 +13,8 @@ import java.util.Random;
 
 @Service
 public class OTPService {
+
+    private static final Logger log = LoggerFactory.getLogger(OTPService.class);
 
     @Autowired
     OTPRepository repository;
@@ -31,6 +34,7 @@ public class OTPService {
 
         OTP otp = new OTP(username,Integer.toString(10000 + r.nextInt(20000)));
         notificacionesService.notificacionSMS("Tu codigo para iniciaar sesión es "+otp.getOtp());
+        log.debug("OTP Enviado con exito");
         repository.save(otp);
     }
 
@@ -45,10 +49,12 @@ public class OTPService {
                     repository.save(otp_db);
                     return true;
                 }
+                log.debug("OTP no coincide", otp);
+            }else{
+                log.debug("OTP vencido");
             }
         }
-
-
+        log.debug("No se encuentra OTP activo para el usuario");
         return false;
     }
 }

@@ -4,6 +4,8 @@ import com.davivienda.AuthService.Model.OTP;
 import com.davivienda.AuthService.Model.Usuario;
 import com.davivienda.AuthService.Repository.OTPRepository;
 import com.davivienda.AuthService.Repository.UserRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,6 +17,8 @@ import java.util.Random;
 @Service
 public class PalabrasService {
 
+    private static final Logger log = LoggerFactory.getLogger(PalabrasService.class);
+
     @Autowired
     UserRepository repository;
 
@@ -25,10 +29,12 @@ public class PalabrasService {
     public boolean validatePalabras(String username, String palabra, String frase, String llave) {
         Optional<Usuario> optional = repository.findById(username);
         if(optional.isEmpty()){
+            log.debug("Usuario no encontrado, ",username);
             return false;
         }
         Usuario usuario = optional.get();
         if(!usuario.getTwoStepAuth().equals("PALABRAS")){
+            log.debug("Usuario con otro metodo de autenticacion, ",usuario.getTwoStepAuth());
             return false;
         };
 
@@ -40,6 +46,7 @@ public class PalabrasService {
                 }
             }
         }
+        log.debug("Los parametros no coinciden");
         return false;
     }
 
