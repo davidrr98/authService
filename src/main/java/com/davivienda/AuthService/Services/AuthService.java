@@ -13,15 +13,15 @@ public class AuthService {
     @Autowired
     UserRepository repository;
 
-    public boolean validateClave(String username, String password) {
+    public String validateClave(String username, String password) {
         Optional<Usuario> optional = repository.findById(username);
         if(optional.isEmpty()){
-            return false;
+            return null;
         }
         Usuario usuario = optional.get();
         if(usuario.getPassword().equals(password)){
-            return true;
+            return usuario.getTwoStepAuth();
         }
-        return false;
+        return null;
     }
 }
